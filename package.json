@@ -1,0 +1,32 @@
+{
+  "name": "flicker-ui",
+  "version": "1.0.0",
+  "description": "Collection of customizable react components",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "commander": "^11.1.0",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Humboorgir/flicker-ui.git"
+  },
+  "author": "Humboorgir",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Humboorgir/flicker-ui/issues"
+  },
+  "homepage": "https://github.com/Humboorgir/flicker-ui#readme"
+}
