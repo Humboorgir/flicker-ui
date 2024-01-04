@@ -1,23 +1,27 @@
 {
   "name": "flicker-ui",
-  "version": "1.0.0",
+  "version": "0.0.11",
   "description": "Collection of customizable react components",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "bin": "dist/index.js",
   "files": [
     "dist"
   ],
   "dependencies": {
     "commander": "^11.1.0",
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.2.0",
+    "get-installed-path": "^4.0.8"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc"
   },
   "repository": {
     "type": "git",
