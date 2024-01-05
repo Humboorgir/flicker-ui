@@ -1,1 +1,0 @@
-const bye = 1;

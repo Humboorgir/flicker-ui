@@ -8,7 +8,7 @@ const program = new Command();
 
 program.name("flicker-ui").description("Simple CLI to copy premade react components").version("1.0.0");
 
-function log(message: string, type?: string) {
+function log(message: any, type?: string) {
   console.log(message);
 }
 
@@ -19,25 +19,28 @@ program
   .action(handleAddComponent);
 
 async function handleAddComponent(component: string) {
-  const packageFolder = await fs.readdirSync(__dirname);
+  const packageFolder = await fs.readdirSync(path.join(__dirname, ".."));
   const userFolder = await fs.readdirSync("./");
 
   if (!userFolder.includes("components")) return log("Couldn't find your components folder");
-  if (!packageFolder.includes("component"))
-    return log(
-      "Couldn't find components folder in installation, perhaps the package wasn't properly installed?"
-    );
+  if (!packageFolder.includes("components")) {
+    log("Couldn't find components folder in installation, perhaps the package wasn't properly installed?");
+    log(packageFolder);
+  }
 
-  const componentsFolder = await fs.readdirSync("./components");
-  const sourceFolder = await fs.readdirSync(path.join(__dirname, "components"));
-
-  const alreadyAdded = componentsFolder.includes(component.toLowerCase());
-  if (alreadyAdded) return log(`There's already a component called "${component}" in your project`);
-
+  const sourceFolder = await fs.readdirSync(path.join(__dirname, "..", "components"));
   const isValid = sourceFolder.includes(component.toLowerCase());
+
   if (!isValid) return log("Invalid component name");
 
-  fs.copySync(`${__dirname}/${component.toLowerCase()}`, `./components/${component.toLowerCase()}`);
+  const source = path.join(__dirname, "..", "components", component.toLowerCase());
+  const target = `./components/${component.toLowerCase()}`;
+
+  try {
+    fs.copySync(source, target, { overwrite: false, errorOnExist: true });
+  } catch (e) {
+    log(`Failed to copy components,\n component ${component} already exists in your project`);
+  }
 }
 
 program.parse();
