@@ -4,6 +4,7 @@ import * as path from "path";
 import * as chalk from "chalk";
 
 import logger from "../lib/logger";
+import findComponentsFolder from "../lib/findComponentsFolder";
 
 const addCommand = new Command("add")
   .description("Adds the specified component to your project")
@@ -12,16 +13,17 @@ const addCommand = new Command("add")
 
 async function handleAddComponent(component: string) {
   const packageFolder = await fs.readdirSync(path.join(__dirname, ".."));
-  const userFolder = await fs.readdirSync("./");
+  const componentsFolder = await findComponentsFolder();
 
-  if (!userFolder.includes("components")) return logger.error("Couldn't find your components folder");
   if (!packageFolder.includes("components")) {
     logger.error(
       "Couldn't find components folder in installation, perhaps the package wasn't properly installed?"
     );
   }
 
-  const sourceFolder = await fs.readdirSync(path.join(__dirname, "..", "components"));
+  const sourceFolder = await fs.readdirSync(
+    path.join(__dirname, "..", "components")
+  );
   const isValid = sourceFolder.includes(component.toLowerCase());
 
   if (!isValid)
@@ -29,15 +31,26 @@ async function handleAddComponent(component: string) {
       "Invalid component name, to get a list of valid components use the 'components' command"
     );
 
-  const source = path.join(__dirname, "..", "components", component.toLowerCase());
-  const target = `./components/${component.toLowerCase()}`;
+  const source = path.join(
+    __dirname,
+    "..",
+    "components",
+    component.toLowerCase()
+  );
+
+  // TODO: this might break if componentsFolder has an extra "/" at the end of it
+  // for instance: ./src/components/
+  // fix it!
+  const target = `${componentsFolder}/${component.toLowerCase()}`;
 
   try {
     fs.copySync(source, target, { overwrite: false, errorOnExist: true });
     logger.success(`Successfully installed ${component} component`);
   } catch (e) {
     logger.error(
-      `Failed to copy components,\n component ${chalk.underline(component)} already exists in your project`
+      `Failed to copy components,\n component ${chalk.underline(
+        component
+      )} already exists in your project`
     );
   }
 }
