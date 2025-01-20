@@ -4,9 +4,7 @@ import fs from "fs-extra";
 import prompts from "prompts";
 import saveConfig from "../lib/saveConfig";
 
-const initCommand = new Command("init")
-  .description("Initializes FlickerUI")
-  .action(handleInit);
+const initCommand = new Command("init").description("Initializes FlickerUI").action(handleInit);
 
 async function handleInit() {
   const userFolder = await fs.readdirSync("./");
@@ -15,33 +13,26 @@ async function handleInit() {
     const { confirm } = await prompts({
       type: "confirm",
       name: "confirm",
-      message: loggerMessage.alert(
-        "Detected 'components' folder at project root. Set as default?"
-      ),
+      message: loggerMessage.alert("Detected 'components' folder at project root. Set as default?"),
     });
 
     const componentsFolderPath = `./components`;
     if (confirm) {
-      saveConfig({ componentsFolderPath });
+      saveConfig({ componentsFolderPath: `${componentsFolderPath}/ui` });
       return;
     }
   }
 
-  if (
-    userFolder.includes("src") &&
-    fs.readdirSync("./src").includes("components")
-  ) {
+  if (userFolder.includes("src") && fs.readdirSync("./src").includes("components")) {
     const { confirm } = await prompts({
       type: "confirm",
       name: "confirm",
-      message: loggerMessage.alert(
-        "Detected 'components' folder in src. Set as default?"
-      ),
+      message: loggerMessage.alert("Detected 'components' folder in src. Set as default?"),
     });
 
     const componentsFolderPath = `./src/components`;
     if (confirm) {
-      saveConfig({ componentsFolderPath });
+      saveConfig({ componentsFolderPath: `${componentsFolderPath}/ui` });
       return;
     }
   }
@@ -67,7 +58,7 @@ async function handleInit() {
       return getAndSaveComponentsFolder();
     }
 
-    saveConfig({ componentsFolderPath: value });
+    saveConfig({ componentsFolderPath: `${value}/ui` });
   }
 }
 

@@ -1,11 +1,13 @@
 import * as fs from "fs";
-import logger from "./logger";
+import logger, { loggerMessage } from "./logger";
 
 export default async function findComponentsFolder() {
   const rootFolders = await fs.readdirSync("./");
   if (!rootFolders.includes("flicker-config.json"))
-    return logger.error(
-      "Unable to find FlickerUI's config.\n Make sure to initialize FlickerUI with 'flicker-ui init' before using the CLI for anything"
+    throw new Error(
+      loggerMessage.error(
+        "Unable to find FlickerUI's config.\n Make sure to initialize FlickerUI with 'flicker-ui init' before using the CLI for anything"
+      )
     );
 
   try {
@@ -20,8 +22,6 @@ export default async function findComponentsFolder() {
 
     return componentsFolderPath;
   } catch (e) {
-    logger.error(
-      `Unable to read FlickerUI config file.\n Error: ${JSON.stringify(e)}`
-    );
+    logger.error(`Unable to read FlickerUI config file.\n Error: ${JSON.stringify(e)}`);
   }
 }
