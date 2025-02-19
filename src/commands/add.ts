@@ -5,6 +5,7 @@ import * as chalk from "chalk";
 
 import logger from "../lib/logger";
 import findComponentsFolder from "../lib/findComponentsFolder";
+import handleDependencies from "../lib/handleDependencies";
 
 const addCommand = new Command("add")
   .description("Adds the specified component to your project")
@@ -21,9 +22,7 @@ async function handleAddComponent(component: string) {
     );
   }
 
-  const sourceFolder = await fs.readdirSync(
-    path.join(__dirname, "..", "components")
-  );
+  const sourceFolder = await fs.readdirSync(path.join(__dirname, "..", "components"));
   const isValid = sourceFolder.includes(component.toLowerCase());
 
   if (!isValid)
@@ -31,12 +30,7 @@ async function handleAddComponent(component: string) {
       "Invalid component name, to get a list of valid components use the 'components' command"
     );
 
-  const source = path.join(
-    __dirname,
-    "..",
-    "components",
-    component.toLowerCase()
-  );
+  const source = path.join(__dirname, "..", "components", component.toLowerCase());
 
   // TODO: this might break if componentsFolder has an extra "/" at the end of it
   // for instance: ./src/components/
@@ -45,12 +39,11 @@ async function handleAddComponent(component: string) {
 
   try {
     fs.copySync(source, target, { overwrite: false, errorOnExist: true });
+    handleDependencies(component.toLowerCase());
     logger.success(`Successfully installed ${component} component`);
   } catch (e) {
     logger.error(
-      `Failed to copy components,\n component ${chalk.underline(
-        component
-      )} already exists in your project`
+      `Failed to copy components,\n component ${chalk.underline(component)} already exists in your project`
     );
   }
 }
