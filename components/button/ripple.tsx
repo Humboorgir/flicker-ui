@@ -56,11 +56,11 @@ const Ripple = ({ duration = 600, rippleColor = "hsl(var(--primary))", children 
     <div className="absolute bottom-0 left-0 right-0 top-0" onClick={addRipple}>
       {children}
       {rippleArray.length > 0 &&
-        rippleArray.map((ripple, index) => {
+        rippleArray.map((ripple, i) => {
           return (
             <span
               className="absolute scale-0 animate-ripple rounded-full opacity-75"
-              key={"span" + index}
+              key={i}
               style={{
                 top: ripple.y,
                 left: ripple.x,

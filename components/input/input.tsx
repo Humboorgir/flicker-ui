@@ -6,6 +6,8 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, placeholder, ...props }, ref) => {
+    // TODO: rewrite this according to my codepen
+    // so many accessibility issues with this
     return (
       <div className={cn("relative w-fit h-fit", className)}>
         <input

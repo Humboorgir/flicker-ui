@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export type ContainerProps = React.HTMLProps<HTMLDivElement>;
 
-/** Flexbox container, used for more readability */
+/** Used to center items on a page. responsive by default. */
 const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
   ({ children, className, ...props }, ref) => {
     return (

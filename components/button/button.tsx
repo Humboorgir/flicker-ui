@@ -11,16 +11,23 @@ import { cn } from "@/lib/utils";
 const buttonVariants = cva(
   `inline-flex items-center justify-center rounded-md font-base
   whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none 
+  focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 
    disabled:pointer-events-none disabled:opacity-50 relative overflow-hidden`,
   {
     variants: {
+      /**
+       * The button style of your choice.
+       */
       variant: {
-        default: "bg-primary text-neutral-100 hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground hover:bg-primary/80",
         secondary: "bg-secondary text-foreground hover:bg-secondary/80",
         outline: "border border-ring text-foreground bg-background hover:bg-accent",
         ghost: "text-foreground hover:bg-accent",
         link: "text-primary underline-offset-4 hover:underline",
       },
+      /**
+       * How large should the button be?
+       */
       size: {
         default: "text-base px-3 py-2",
         sm: "text-sm rounded-md px-2 py-1.5",
@@ -36,16 +43,18 @@ const buttonVariants = cva(
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
+    /**
+     * Color used for the button's ripple effect.
+     */
     rippleColor?: string;
+    /**
+     * Url to redirect to on button click.
+     */
     href?: string;
   };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, children, rippleColor, href, ...props }, ref) => {
-    // use secondary itself as the rippleColor if variant == secondary and rippleColor
-    // isn't specified
-    if (variant == "secondary" && !rippleColor) rippleColor = "#7C72FF";
-
     const Component = href ? Link : "button";
     return (
       <Component

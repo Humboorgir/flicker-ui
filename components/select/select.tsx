@@ -1,22 +1,33 @@
 // NOTE: this component hasnt been tested and is only being added for my own usage.
 // TODO: rewrite the animations with framer-motion and organize the code
 
-import Button from "@/components/ui/button";
+import Button, { buttonVariants } from "@/components/ui/button";
 
+import { type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-type Option = {
-  name: string;
-  value: string;
-};
-
-type Props = Omit<React.HTMLProps<HTMLDivElement>, "onChange"> & {
+type SelectProps = Omit<React.HTMLProps<HTMLDivElement>, "onChange"> & {
+  /**
+   * The component's title. Visible before any user interaction takes place.
+   */
   children: React.ReactNode;
-  options: Option[];
-  variant?: "default" | "secondary" | "outline" | "ghost" | "link";
+  /**
+   * List of select options.
+   */
+  options: { name: string; value: string }[];
+  /**
+   * Variant of the trigger button.
+   */
+  variant?: VariantProps<typeof buttonVariants>["variant"];
+  /**
+   * If true, scroll-y will be set to `auto`
+   */
   scrollable?: boolean;
-  onChange?: (option: Option) => void;
+  /**
+   * A function that runs everytime the selected option changes.
+   */
+  onChange?: (option: { name: string; value: string }) => void;
 };
 
 const Select = ({
@@ -26,7 +37,9 @@ const Select = ({
   options,
   className,
   onChange = () => {},
-}: Props) => {
+}: SelectProps) => {
+  type Option = { name: string; value: string };
+
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Option>({ name: "", value: "" });
 
