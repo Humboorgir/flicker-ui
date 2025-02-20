@@ -1,5 +1,6 @@
-export function parseComponentDependencies(code: string): {
-  dependencies: string[];
+// Parses the list of dependencies used in a given string of code
+export default function parseCodeDependencies(code: string): {
+  npmDependencies: string[];
   hookDependencies: string[];
   utilDependencies: string[];
   componentDependencies: string[];
@@ -9,7 +10,7 @@ export function parseComponentDependencies(code: string): {
   let match: RegExpExecArray | null;
 
   // Using sets to handle duplications
-  const dependencies = new Set<string>();
+  const npmDependencies = new Set<string>();
   const hookDependencies = new Set<string>();
   const utilDependencies = new Set<string>();
   const componentDependencies = new Set<string>();
@@ -47,12 +48,12 @@ export function parseComponentDependencies(code: string): {
     } else if (isLocalPath(source)) {
       // Ignore other local imports
     } else {
-      dependencies.add(getNpmPackageName(source));
+      npmDependencies.add(getNpmPackageName(source));
     }
   }
 
   return {
-    dependencies: Array.from(dependencies),
+    npmDependencies: Array.from(npmDependencies),
     hookDependencies: Array.from(hookDependencies),
     utilDependencies: Array.from(utilDependencies),
     componentDependencies: Array.from(componentDependencies),

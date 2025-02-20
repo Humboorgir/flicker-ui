@@ -1,6 +1,6 @@
 // @ts-ignore
 import { expect, test } from "bun:test";
-import { parseComponentDependencies } from "../lib/parseComponentDependencies";
+import parseComponentDependencies from "../lib/handleDependencies/parseComponentDependencies";
 
 test("should detect npm dependencies", () => {
   const code = `
@@ -10,7 +10,7 @@ test("should detect npm dependencies", () => {
   `;
 
   const result = parseComponentDependencies(code);
-  expect(result.dependencies).toEqual(["framer-motion", "@radix-ui/react-button", "react"]);
+  expect(result.npmDependencies).toEqual(["framer-motion", "@radix-ui/react-button", "react"]);
 });
 
 test("should handle scoped packages and subpaths", () => {
@@ -20,7 +20,7 @@ test("should handle scoped packages and subpaths", () => {
   `;
 
   const result = parseComponentDependencies(code);
-  expect(result.dependencies).toEqual(["@radix-ui/react-aspect-ratio", "framer-motion"]);
+  expect(result.npmDependencies).toEqual(["@radix-ui/react-aspect-ratio", "framer-motion"]);
 });
 
 test("should detect hook dependencies", () => {
@@ -65,7 +65,7 @@ test("should ignore relative imports", () => {
 
   const result = parseComponentDependencies(code);
   expect(result).toEqual({
-    dependencies: [],
+    npmDependencies: [],
     hookDependencies: [],
     utilDependencies: ["test"],
     componentDependencies: [],
@@ -84,7 +84,7 @@ test("should handle complex example", () => {
 
   const result = parseComponentDependencies(code);
   expect(result).toEqual({
-    dependencies: ["framer-motion", "@radix-ui/react-dialog"],
+    npmDependencies: ["framer-motion", "@radix-ui/react-dialog"],
     hookDependencies: ["useAuth"],
     utilDependencies: ["utils"],
     componentDependencies: ["button"],
@@ -126,7 +126,7 @@ test("should ignore non-component ui imports", () => {
 
   const result = parseComponentDependencies(code);
   expect(result).toEqual({
-    dependencies: [],
+    npmDependencies: [],
     hookDependencies: [],
     utilDependencies: ["api-client"],
     componentDependencies: [],
