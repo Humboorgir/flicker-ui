@@ -1,6 +1,6 @@
 // @ts-ignore
 import { expect, test } from "bun:test";
-import parseComponentDependencies from "../lib/handleDependencies/parseComponentDependencies";
+import parseComponentDependencies from "../lib/handleDependencies/parseDependencies";
 
 test("should detect npm dependencies", () => {
   const code = `

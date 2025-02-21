@@ -1,5 +1,5 @@
 import { execa } from "execa";
-import askForPreferredPackageManager from "../askForPreferredPackageManager";
+import askForPreferredPackageManager from "../initCommand/askForPreferredPackageManager";
 import getConfig from "../getConfig";
 
 type InstallNPMPackagesArgs = {

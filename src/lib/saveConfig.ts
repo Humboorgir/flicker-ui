@@ -9,12 +9,13 @@ type RequireAtLeastOne<T> = {
 // Running the function with an empty config object would be pointless.
 export type Config = RequireAtLeastOne<{
   componentsFolderPath: string;
+  hooksFolderPath: string;
   preferredPackageManager: "npm" | "bun" | "yarn" | "pnpm";
 }>;
 
 function saveConfig(specifiedConfig: Config) {
-  const { componentsFolderPath, preferredPackageManager } = specifiedConfig;
-  if (!componentsFolderPath && !preferredPackageManager) return;
+  const { componentsFolderPath, hooksFolderPath, preferredPackageManager } = specifiedConfig;
+  if (!componentsFolderPath && !preferredPackageManager && !hooksFolderPath) return;
 
   const userDirectories = readdirSync("./");
 

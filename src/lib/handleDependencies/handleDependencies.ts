@@ -2,13 +2,14 @@ import logger, { loggerMessage } from "../logger";
 import prompts from "prompts";
 import ora from "ora";
 
-import parseComponentDependencies from "./parseComponentDependencies";
+import parseComponentDependencies from "./parseDependencies";
 import checkInstalledNPMPackages from "./checkInstalledNPMPackages";
 import installNPMPackages from "./installNPMPackages";
+import chalk from "chalk";
 
-export default async function handleDependencies(componentName: string) {
+export default async function handleDependencies(name: string, type: "component" | "hook") {
   const { npmDependencies, hookDependencies, utilDependencies, componentDependencies } =
-    parseComponentDependencies(componentName);
+    parseComponentDependencies(name, type);
 
   const installedModules = checkInstalledNPMPackages(npmDependencies);
 
@@ -17,8 +18,8 @@ export default async function handleDependencies(componentName: string) {
   if (installedModules.length)
     logger.success(
       `The following dependencies are already installed:
-  ${installedModules.join(", ")}
-  Skipping module installation.`,
+${chalk.underline(installedModules.join(", "))}
+Skipping module installation.`,
       {
         raw: true,
       }

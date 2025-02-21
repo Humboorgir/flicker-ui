@@ -1,6 +1,6 @@
 import prompts from "prompts";
-import logger, { loggerMessage } from "./logger";
-import saveConfig from "./saveConfig";
+import logger, { loggerMessage } from "../logger";
+import saveConfig from "../saveConfig";
 
 export default async function askForPreferredPackageManager() {
   const { selectedOption } = await prompts({

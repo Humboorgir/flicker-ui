@@ -1,6 +1,6 @@
 import prompts from "prompts";
-import logger, { loggerMessage } from "./logger";
-import saveConfig from "./saveConfig";
+import logger, { loggerMessage } from "../logger";
+import saveConfig from "../saveConfig";
 import { readdirSync } from "node:fs";
 
 export default async function askForComponentsFolderPath() {
@@ -36,6 +36,7 @@ export default async function askForComponentsFolderPath() {
   }
 
   // ask for components folder, then validate and save it.
+  // if invalid, repeat the function
   await getAndSaveComponentsFolder();
 
   async function getAndSaveComponentsFolder() {
@@ -44,7 +45,7 @@ export default async function askForComponentsFolderPath() {
       type: "text",
       name: "value",
       initial: placeholder,
-      message: "Enter a path to your components folder",
+      message: "Enter the path to your components folder",
     });
 
     try {

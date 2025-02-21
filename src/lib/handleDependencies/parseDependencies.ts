@@ -1,12 +1,24 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import getDirname from "../getDirname";
 import parseCodeDependencies from "./parseCodeDependencies";
 
-// uses 'parseCodeDependencies' to get every dependency used in a component (which can have multiple files).
-export default function parseComponentDependencies(componentName: string) {
+// uses 'parseDependencies' to get every dependency used in a component (which can have multiple files).
+export default function parseDependencies(componentName: string, type: "component" | "hook") {
   const __dirname = getDirname();
-  const source = path.join(__dirname, "..", "components", componentName.toLowerCase());
+
+  let sourceFolder;
+  if (type == "hook") sourceFolder = "hooks";
+  else sourceFolder = "components";
+
+  const source = path.join(__dirname, "..", sourceFolder, componentName);
+  const stats = statSync(source);
+
+  if (stats.isFile()) {
+    const code = readFileSync(source, { encoding: "utf-8" });
+    return parseCodeDependencies(code);
+  }
+
   const componentDirectories = readdirSync(source);
 
   type Dependencies = {
