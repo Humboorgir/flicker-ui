@@ -35,14 +35,13 @@ export default async function addHook(hookName: string) {
   const source = path.join(__dirname, "..", "hooks", `${sourceFileName}.ts`);
   const target = `${hooksFolderPath}/${sourceFileName}.ts`;
 
-  try {
-    fs.copySync(source, target, { overwrite: false, errorOnExist: true });
-    await handleDependencies(sourceFile, "hook");
-    logger.success(`Successfully installed the ${chalk.underline(sourceFileName)} hook`);
-  } catch (e) {
-    console.log(e);
-    logger.error(
+  const hookAlreadyExists = fs.existsSync(target);
+  if (hookAlreadyExists)
+    return logger.error(
       `Failed to copy hook,\n hook ${chalk.underline(sourceFileName)} already exists in your project`
     );
-  }
+
+  fs.copySync(source, target, { overwrite: false, errorOnExist: true });
+  await handleDependencies(sourceFile, "hook");
+  logger.success(`Successfully installed the ${chalk.underline(sourceFileName)} hook`);
 }

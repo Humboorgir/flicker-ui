@@ -38,15 +38,15 @@ export default async function addComponent(componentName: string) {
   // fix it!
   const target = `${componentsFolderPath}/${componentName.toLowerCase()}`;
 
-  try {
-    fs.copySync(source, target, { overwrite: false, errorOnExist: true });
-    await handleDependencies(componentName.toLowerCase(), "component");
-    logger.success(`Successfully installed ${componentName} component`);
-  } catch (e) {
-    logger.error(
+  const componentAlreadyExists = fs.existsSync(target);
+  if (componentAlreadyExists)
+    return logger.error(
       `Failed to copy components,\n component ${chalk.underline(
         componentName
       )} already exists in your project`
     );
-  }
+
+  fs.copySync(source, target, { overwrite: false, errorOnExist: true });
+  await handleDependencies(componentName.toLowerCase(), "component");
+  logger.success(`Successfully installed ${componentName} component`);
 }

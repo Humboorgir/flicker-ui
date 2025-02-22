@@ -15,6 +15,7 @@ export default async function installNPMPackages({ dependencies }: InstallNPMPac
     preferredPackageManager,
     [preferredPackageManager == "npm" ? "install" : "add", ...dependencies],
     {
+      reject: false,
       cwd: process.cwd(),
     }
   );
