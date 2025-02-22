@@ -6,23 +6,40 @@ import parseComponentDependencies from "./parseDependencies";
 import checkInstalledNPMPackages from "./checkInstalledNPMPackages";
 import installNPMPackages from "./installNPMPackages";
 import chalk from "chalk";
+import addHook from "../addCommand/addHook";
 
 export default async function handleDependencies(name: string, type: "component" | "hook") {
   const { npmDependencies, hookDependencies, utilDependencies, componentDependencies } =
     parseComponentDependencies(name, type);
 
+  // --- handling hook dependencies ---
+  if (hookDependencies.length) {
+    const { confirm } = await prompts({
+      type: "confirm",
+      name: "confirm",
+      message: loggerMessage.alert(
+        `Hook(s) "${chalk.underline(
+          hookDependencies.join(", ")
+        )}" found to be used in the component. Add them to the project?`
+      ),
+    });
+
+    if (!confirm) return;
+
+    hookDependencies.forEach(async (hookName) => {
+      await addHook(hookName);
+    });
+  }
+  // --- handling NPM dependencies ---
   const installedModules = checkInstalledNPMPackages(npmDependencies);
 
   const notInstalledModules = npmDependencies.filter((npmDep) => !installedModules.includes(npmDep));
 
   if (installedModules.length)
-    logger.success(
+    logger.alert(
       `The following dependencies are already installed:
 ${chalk.underline(installedModules.join(", "))}
-Skipping module installation.`,
-      {
-        raw: true,
-      }
+${chalk.green("Skipping module installation.")}`
     );
 
   if (!notInstalledModules.length)
@@ -32,9 +49,7 @@ Skipping module installation.`,
     type: "confirm",
     name: "confirm",
     message: loggerMessage.alert(
-      `NPM dependencie(s) "${notInstalledModules.join(
-        ", "
-      )}" found to be used in the component. Install them?`
+      `NPM dependencie(s) "${notInstalledModules.join(", ")}" found to be used in the ${type}. Install them?`
     ),
   });
 
@@ -45,5 +60,7 @@ Skipping module installation.`,
 
   await installNPMPackages({ dependencies: notInstalledModules });
 
-  installingSpinner.succeed(`Successfully installed npm dependencies: ${notInstalledModules.join(", ")}`);
+  installingSpinner.succeed(
+    `Successfully installed npm dependencies: ${chalk.underline(notInstalledModules.join(", "))}`
+  );
 }
