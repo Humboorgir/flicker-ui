@@ -48,5 +48,5 @@ export default async function addComponent(componentName: string) {
 
   fs.copySync(source, target, { overwrite: false, errorOnExist: true });
   await handleDependencies(componentName.toLowerCase(), "component");
-  logger.success(`Successfully installed ${componentName} component`);
+  logger.success(`Successfully installed the ${chalk.underline(componentName)} component`);
 }
