@@ -1,6 +1,6 @@
 // @ts-ignore
 import { expect, test } from "bun:test";
-import parseComponentDependencies from "../lib/handleDependencies/parseDependencies";
+import parseCodeDependencies from "../lib/handleDependencies/parseCodeDependencies";
 
 test("should detect npm dependencies", () => {
   const code = `
@@ -9,7 +9,7 @@ test("should detect npm dependencies", () => {
     import { useState } from 'react';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result.npmDependencies).toEqual(["framer-motion", "@radix-ui/react-button", "react"]);
 });
 
@@ -19,7 +19,7 @@ test("should handle scoped packages and subpaths", () => {
     import { domAnimation } from 'framer-motion/dom';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result.npmDependencies).toEqual(["@radix-ui/react-aspect-ratio", "framer-motion"]);
 });
 
@@ -30,7 +30,7 @@ test("should detect hook dependencies", () => {
     import { useEffect } from 'react';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result.hookDependencies).toEqual(["useAuth", "useTheme"]);
 });
 
@@ -41,7 +41,7 @@ test("should detect utility dependencies", () => {
     import { test } from '@/lib/test';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result.utilDependencies).toEqual(["utils", "date-utils", "test"]);
 });
 
@@ -52,7 +52,7 @@ test("should detect component dependencies", () => {
     import { Card } from '@/components/ui/card';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result.componentDependencies).toEqual(["button", "Dialog", "card"]);
 });
 
@@ -63,7 +63,7 @@ test("should ignore relative imports", () => {
     import { test } from '@/lib/test';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result).toEqual({
     npmDependencies: [],
     hookDependencies: [],
@@ -82,7 +82,7 @@ test("should handle complex example", () => {
     import { localHelper } from './helpers';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result).toEqual({
     npmDependencies: ["framer-motion", "@radix-ui/react-dialog"],
     hookDependencies: ["useAuth"],
@@ -99,7 +99,7 @@ test("should deduplicate dependencies", () => {
     import { cn } from '@/lib/utils';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result.componentDependencies).toEqual(["button"]);
   expect(result.utilDependencies).toEqual(["utils"]);
 });
@@ -111,7 +111,7 @@ test("should handle different file extensions", () => {
     import { Button } from '@/components/ui/button.tsx';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result.hookDependencies).toEqual(["useAuth"]);
   expect(result.utilDependencies).toEqual(["utils"]);
   expect(result.componentDependencies).toEqual(["button"]);
@@ -124,7 +124,7 @@ test("should ignore non-component ui imports", () => {
     import { types } from '@/types';
   `;
 
-  const result = parseComponentDependencies(code);
+  const result = parseCodeDependencies(code);
   expect(result).toEqual({
     npmDependencies: [],
     hookDependencies: [],
