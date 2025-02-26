@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import React from "react";
 
-type SkeletonProps = React.ComponentProps<"span">;
+type SkeletonProps = React.ComponentProps<"div">;
 
-const Skeleton = React.forwardRef<HTMLSpanElement, SkeletonProps>(({ className, ...props }, ref) => {
+const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(({ className, ...props }, ref) => {
   return (
     <span
       ref={ref}
@@ -15,7 +15,7 @@ const Skeleton = React.forwardRef<HTMLSpanElement, SkeletonProps>(({ className, 
       {...props}>
       {/* Invisible character */}
       &zwnj;
-      <motion.div
+      <motion.span
         initial={{ x: "-100%" }}
         animate={{ x: "100%" }}
         transition={{

@@ -1,17 +1,12 @@
-// NOTE: this component hasnt been tested and is only being added for my own usage.
-// TODO: rewrite the animations with framer-motion and organize the code
-
 import Button, { buttonVariants } from "@/components/ui/button";
 
 import { type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import React, { MouseEventHandler, useId, useRef, useState } from "react";
+import { useClickOutside } from "@/hooks/useClickOutside";
+import SelectMenu from "./selectMenu";
 
-type SelectProps = Omit<React.HTMLProps<HTMLDivElement>, "onChange"> & {
-  /**
-   * The component's title. Visible before any user interaction takes place.
-   */
-  children: React.ReactNode;
+export type SelectProps = Omit<React.ComponentProps<"div">, "onChange"> & {
   /**
    * List of select options.
    */
@@ -21,7 +16,7 @@ type SelectProps = Omit<React.HTMLProps<HTMLDivElement>, "onChange"> & {
    */
   variant?: VariantProps<typeof buttonVariants>["variant"];
   /**
-   * If true, scroll-y will be set to `auto`
+   * If true, scroll-y will be set to `auto`.
    */
   scrollable?: boolean;
   /**
@@ -30,66 +25,116 @@ type SelectProps = Omit<React.HTMLProps<HTMLDivElement>, "onChange"> & {
   onChange?: (option: { name: string; value: string }) => void;
 };
 
-const Select = ({
-  variant = "default",
-  scrollable = false,
-  children,
-  options,
-  className,
-  onChange = () => {},
-}: SelectProps) => {
-  type Option = { name: string; value: string };
+const Select = React.forwardRef<HTMLDivElement, SelectProps>(
+  ({ variant = "default", scrollable = false, children, options, className, onChange = () => {} }, ref) => {
+    type Option = { name: string; value: string };
 
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Option>({ name: "", value: "" });
+    const [isOpen, setIsOpen] = useState(false);
+    const [selected, setSelected] = useState<Option>({ name: "", value: "" });
+    // Used purely for accessibility-related purposes
+    const [focused, setFocused] = useState<Option>(options[0]);
+    const triggerRef = useRef<HTMLButtonElement>(null);
 
-  function toggleOpen() {
-    setOpen(!open);
-  }
+    const toggleOpen = (customIsOpen?: boolean) => {
+      // while opening:
+      if (!isOpen) setFocused(options[0]);
+      // while closing:
+      if (isOpen) triggerRef.current?.focus();
+      if (typeof customIsOpen == "boolean") setIsOpen(customIsOpen);
+      else setIsOpen((prev) => !prev);
+    };
 
-  function selectOption(option: Option) {
-    onChange(option);
-    setSelected(option);
-    setOpen(false);
-  }
+    function selectOption(option: Option) {
+      onChange(option);
+      setSelected(option);
+      toggleOpen();
+    }
 
-  // select component
-  return (
-    <div className={cn("relative w-fit h-fit", className)}>
-      <Button
-        className={cn("transition-all", open && "rounded-b-none")}
-        rippleColor="#7C72FF"
-        variant={variant}
-        onClick={toggleOpen}>
-        {selected.value ? selected.name : children}
-      </Button>
-      {/* select options  */}
+    const numberOfOptions = options.length;
 
+    const moveFocusUp = () => {
+      if (options.indexOf(focused) > 0) {
+        return setFocused(() => options[options.indexOf(focused) - 1]);
+      }
+      setFocused(options[numberOfOptions - 1]);
+    };
+    const selectFocusedOption = () => {
+      selectOption(options[options.indexOf(focused)]);
+    };
+
+    const moveFocusDown = () => {
+      if (options.indexOf(focused) < numberOfOptions - 1) {
+        return setFocused(() => options[options.indexOf(focused) + 1]);
+      }
+      setFocused(options[0]);
+    };
+
+    const clickOutsideRef = useClickOutside(() => setIsOpen(false));
+
+    // Merge forwarded ref and clickOutsideRef
+    const setRefs = (node: HTMLDivElement | null) => {
+      // Handle forwarded ref
+      if (typeof ref === "function") {
+        ref(node);
+      } else if (ref) {
+        ref.current = node;
+      }
+      // Handle clickOutsideRef
+      if (clickOutsideRef) {
+        (clickOutsideRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      }
+    };
+
+    // unique component ID, used for accessibility-related purposes.
+    const id = useId();
+    const triggerId = `${id}-trigger`;
+    const menuId = `${id}-menu`;
+
+    return (
       <div
-        className={cn(
-          `absolute invisible top-full right-0 bg-neutral-900 z-20 scale-[.8]
-           opacity-0 transition-all duration-100 origin-top max-h-[200px] delay-100 rounded-b-md
-           border-b border-b-secondary`,
-          scrollable && "overflow-y-scroll",
-          open && "scale-100 opacity-100 visible"
-        )}>
-        {options &&
-          options.map((option, i) => (
-            <Button
-              key={i}
-              className={cn(
-                `w-full justify-start border-secondary border-t-0 first-of-type:border-t rounded-none
-            last-of-type:rounded-b-md`
-              )}
-              rippleColor="#7C72FF"
-              variant="outline"
-              onClick={() => selectOption(option)}>
-              {option.name}
-            </Button>
-          ))}
+        // Handling keyboard interactions
+        onKeyDown={(e) => {
+          if (!isOpen) return;
+          const { key } = e;
+          if (key == "Escape") return toggleOpen(false);
+          // To prevent scrolling:
+          if (["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(key)) e.preventDefault();
+          if (key == "ArrowUp") return moveFocusUp();
+          if (key == "ArrowDown") return moveFocusDown();
+          if (["Enter", "Space"].includes(key)) return selectFocusedOption();
+        }}
+        ref={setRefs}
+        className={cn("relative inline-block", className)}>
+        {/* trigger  */}
+        <Button
+          onKeyDown={(e) => {
+            if (e.key == "ArrowDown") {
+              e.preventDefault();
+              toggleOpen(true);
+            }
+          }}
+          ref={triggerRef}
+          role="combobox"
+          id={triggerId}
+          aria-expanded={isOpen}
+          aria-controls={menuId}
+          aria-haspopup="listbox"
+          variant={variant}
+          onClick={() => toggleOpen()}>
+          {selected.value ? selected.name : children}
+        </Button>
+
+        <SelectMenu
+          isOpen={isOpen}
+          menuId={menuId}
+          options={options}
+          focusedOption={focused}
+          scrollable={scrollable}
+          selectOption={selectOption}
+        />
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
 export default Select;
